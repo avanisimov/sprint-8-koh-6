@@ -3,6 +3,7 @@ package com.example.sprint8koh6
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import java.util.*
@@ -10,31 +11,26 @@ import java.util.*
 class MainActivity : AppCompatActivity() {
     companion object {
         const val TAG = "SPRINT_8"
+        const val KEY_LAST_ON_STOP_TIME = "KEY_LAST_ON_STOP_TIME"
     }
 
-    private var timerTv: TextView? = null
-    private var timerValue = 0
-    private var timer: Timer? = null
+    private var pinCode: TextView? = null
+    private var lastOnStopTime = 0L
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d(TAG, "$this onCreate")
         setContentView(R.layout.activity_main)
-        timerTv = findViewById(R.id.timer)
+        pinCode = findViewById(R.id.pin_code)
+        pinCode?.setOnClickListener {
+            pinCode?.visibility = View.GONE
+        }
+        savedInstanceState?.getLong(KEY_LAST_ON_STOP_TIME)
     }
 
     override fun onStart() {
         super.onStart()
-        Log.d(TAG, "$this onStart")
-        timer = Timer().apply {
-            scheduleAtFixedRate(object : TimerTask() {
-                override fun run() {
-                    timerValue++
-                    Log.d(TAG, "$this tick timerValue=$timerValue")
-                    timerTv?.post {
-                        timerTv?.text = timerValue.toString()
-                    }
-                }
-            }, 1000L, 1000L)
+        if (System.currentTimeMillis() - lastOnStopTime > 5000L) {
+            pinCode?.visibility = View.VISIBLE
         }
     }
 
@@ -51,7 +47,7 @@ class MainActivity : AppCompatActivity() {
     override fun onStop() {
         super.onStop()
         Log.d(TAG, "$this onStop")
-        timer?.cancel()
+        lastOnStopTime = System.currentTimeMillis()
     }
 
     override fun onDestroy() {
